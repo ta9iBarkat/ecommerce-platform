@@ -1,5 +1,5 @@
 import Product from '../models/Product.js';
-import { cloudinaryUpload } from '../utils/cloudinary.js'; // your cloudinaryUpload function
+import { cloudinaryUpload } from '../config/cloudinary.js'; // your cloudinaryUpload function
 
 /**
  * @desc    Create a new product with image upload
