@@ -1,6 +1,7 @@
 import Product from '../models/Product.js';
 import { cloudinaryUpload, cloudinary } from '../config/cloudinary.js';
 import asyncHandler from 'express-async-handler';
+import ApiFeatures from '../utils/apiFeatures.js';
 
 // @desc    Create a new product
 // @route   POST /api/products
@@ -42,13 +43,39 @@ const createProduct = asyncHandler(async (req, res) => {
   res.status(201).json(createdProduct);
 });
 
-// @desc    Get all products
+
+// @desc    Get all products with filtering, searching, and pagination
 // @route   GET /api/products
 // @access  Public
 const getProducts = asyncHandler(async (req, res) => {
-  // We can add filtering/pagination here later
-  const products = await Product.find({}).populate('seller', 'name email'); // Populate seller info
-  res.json(products);
+  const resultsPerPage = Number(req.query.limit) || 10;
+  
+  // First, get the total count of products that match the initial filters (search and filter)
+  // This is needed for the frontend to calculate the total number of pages
+  const productCountFeatures = new ApiFeatures(Product.find(), req.query)
+    .search()
+    .filter();
+  const totalProducts = await productCountFeatures.query.countDocuments();
+
+  // Now, apply pagination to get the actual products for the current page
+  const apiFeatures = new ApiFeatures(Product.find(), req.query)
+    .search()
+    .filter()
+    .paginate();
+
+  // Execute the query
+  const products = await apiFeatures.query.populate('seller', 'name email');
+
+  const totalPages = Math.ceil(totalProducts / resultsPerPage);
+
+  res.status(200).json({
+    success: true,
+    count: products.length, // Number of products returned in this response
+    totalProducts,         // Total products matching the filter
+    totalPages,            // Total pages available
+    currentPage: Number(req.query.page) || 1,
+    products,
+  });
 });
 
 // @desc    Get single product by ID

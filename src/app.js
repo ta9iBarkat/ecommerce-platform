@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import productRoutes from './routes/productRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import connectDB  from './config/db.js';
+import cartRoutes from './routes/cartRoutes.js';
 
 connectDB();
 const app = express();
@@ -29,6 +30,7 @@ app.use(rateLimit({
 // Routes
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/cart', cartRoutes);
 
 // 404
 app.use((req, res) => res.status(404).json({ message: 'Route not found' }));
