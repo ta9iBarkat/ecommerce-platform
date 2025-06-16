@@ -66,21 +66,37 @@ export const login = asyncHandler(async (req, res, next) => {
 
 export const refreshToken = asyncHandler(async (req, res, next) => {
   const token = req.cookies.refreshToken;
+
   if (!token) {
-    return next(new ErrorHandler('No refresh token provided', 401));
+    return next(new ErrorHandler('No refresh token provided. Please log in.', 401));
   }
 
-  const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
-  // The line above will throw an error if invalid, which asyncHandler will catch.
-  
-  const user = await User.findById(decoded.id);
-  if (!user) {
-      return next(new ErrorHandler('User belonging to this token does no longer exist.', 401));
-  }
+  try {
+    // We will use a try/catch block to handle errors from jwt.verify
+    const decoded = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
 
-  const accessToken = generateAccessToken(user);
-  res.status(200).json({ accessToken });
+    // If the token is valid, `decoded` will have the payload
+    const user = await User.findById(decoded.id);
+
+    // Crucial Check: Ensure the user still exists
+    if (!user) {
+      return next(new ErrorHandler('User for this token no longer exists.', 401));
+    }
+
+    // Generate a new access token WITH THE FULL USER OBJECT
+    const accessToken = generateAccessToken(user);
+
+    res.status(200).json({
+      success: true,
+      accessToken,
+    });
+
+  } catch (err) {
+    // This block will catch any JWT error (expired, malformed, etc.)
+    return next(new ErrorHandler('Invalid or expired refresh token. Please log in again.', 403));
+  }
 });
+
 
 export const logout = (req, res) => {
   res.clearCookie('refreshToken', {

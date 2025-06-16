@@ -1,38 +1,31 @@
+// config/swagger.js
 import swaggerJSDoc from 'swagger-jsdoc';
 
-// Determine the server URL based on the environment
-const serverUrl = process.env.NODE_ENV === 'production'
-  ? 'https://your-production-domain.com/api' // Replace with your actual production URL
-  : `http://localhost:${process.env.PORT || 3000}/api`;
+// The base URL will be dynamically set by Render in production
+const serverUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${process.env.PORT || 3000}`;
 
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'E-commerce API',
+      title: 'AutoHeaven E-commerce API (Live)',
       version: '1.0.0',
-      description:
-        'API documentation for the e-commerce backend, managing products, users, carts, and orders.',
-      contact: {
-        name: 'Your Name',
-        url: 'https://your-website.com', // Optional
-        email: 'your.email@example.com',
-      },
+      description: 'Live API documentation for the AutoHeaven e-commerce backend.',
+      // ... your other info
     },
     servers: [
       {
-        url: serverUrl,
+        url: `${serverUrl}/api`, // We append /api to match your route structure
         description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server',
       },
     ],
-    // This is crucial for documenting protected routes
+    // ... your components and security sections remain the same
     components: {
       securitySchemes: {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
           bearerFormat: 'JWT',
-          description: 'Enter your JWT in the format: Bearer {token}',
         },
       },
     },
@@ -42,9 +35,8 @@ const swaggerOptions = {
       },
     ],
   },
-  // IMPORTANT: Adjust this path to match your project's folder structure
-  // It should point to where your route files are located.
-  apis: ['./src/routes/*.js', './src/models/*.js'], 
+  // Make sure this path is correct for your project structure
+  apis: ['./src/routes/*.js', './src/models/*.js'],
 };
 
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
