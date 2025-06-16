@@ -55,13 +55,15 @@ npm start
 
 The server will be running on the specified port.
 
-## API Endpoints
+---
 
-- `GET /api/products` - Retrieve all products
-- `GET /api/products/:id` - Retrieve a product by ID
-- `POST /api/products` - Create a new product
-- `PUT /api/products/:id` - Update a product by ID
-- `DELETE /api/products/:id` - Delete a product by ID
+## API Documentation
+
+For detailed information on all available endpoints, models, and to test the API directly from your browser, please visit the live and interactive Swagger documentation:
+
+**[View Live API Documentation](https://your-app-name.onrender.com/api-docs)**
+
+---
 
 ## Contributing
 
